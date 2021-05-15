@@ -57,11 +57,6 @@ class PlaceImageAdmin(admin.ModelAdmin):
     ordering = ('place',)
 
 
-class MenuImageAdmin(admin.ModelAdmin):
-    search_fields = ('place__title',)
-    ordering = ('place',)
-
-
 class TableAdmin(admin.ModelAdmin):
     list_display = ('place', 'number', 'max_guests', 'deposit')
     list_filter = ('max_guests', 'is_vip')
@@ -75,6 +70,6 @@ admin.site.register(Country, CountryAdmin)
 admin.site.register(Cuisine, CuisineAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(PlaceImage, PlaceImageAdmin)
-admin.site.register(MenuImage, MenuImageAdmin)
 admin.site.register(Table, TableAdmin)
 admin.site.register(Favorite)
+admin.site.register(Menu)

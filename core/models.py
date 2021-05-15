@@ -92,12 +92,6 @@ class PlaceImage(models.Model):
     thumbnail = models.ImageField(upload_to='place_images', null=True, blank=True)
 
 
-class MenuImage(models.Model):
-    place = models.ForeignKey(Place, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='menu_images')
-    thumbnail = models.ImageField(upload_to='menu_images', null=True, blank=True)
-
-
 class Table(models.Model):
     place = models.ForeignKey(Place, on_delete=models.CASCADE)
     number = models.PositiveSmallIntegerField()
@@ -117,7 +111,36 @@ class Favorite(models.Model):
     place = models.ForeignKey(Place, on_delete=models.CASCADE)
 
 
-@receiver(models.signals.post_delete, sender=MenuImage)
+class Menu(models.Model):
+    CATEGORY_CHOICES = [
+        ("csn", "csn"),
+        ("sal", "sal"),
+        ("hap", "hap"),
+        ("fme", "fme"),
+        ("shd", "shd"),
+        ("sdi", "sdi"),
+        ("sou", "sou"),
+        ("pas", "pas"),
+        ("piz", "piz"),
+        ("des", "des"),
+        ("hdr", "hdr"),
+        ("cdj", "cdj"),
+        ("add", "add"),
+    ]
+
+    place = models.ForeignKey(Place, on_delete=models.CASCADE)
+    category = models.CharField(max_length=3, choices=CATEGORY_CHOICES)
+    title = models.CharField(max_length=70)
+    price = MoneyField(max_digits=10, decimal_places=2, default_currency='BYN')
+    composition = models.CharField(max_length=300, null=True, blank=True)
+    weight = models.PositiveSmallIntegerField(null=True, blank=True)
+    proteins = models.PositiveSmallIntegerField(null=True, blank=True)
+    fats = models.PositiveSmallIntegerField(null=True, blank=True)
+    carbohydrates = models.PositiveSmallIntegerField(null=True, blank=True)
+    calories = models.PositiveSmallIntegerField(null=True, blank=True)
+    image = models.ImageField(upload_to='menu_images', null=True, blank=True)
+
+
 @receiver(models.signals.post_delete, sender=PlaceImage)
 def auto_delete_image_and_thumbnail_on_delete(sender, instance, **kwargs):
     if instance.image:
@@ -129,6 +152,7 @@ def auto_delete_image_and_thumbnail_on_delete(sender, instance, **kwargs):
             os.remove(instance.thumbnail.path)
 
 
+@receiver(models.signals.post_delete, sender=Menu)
 @receiver(models.signals.post_delete, sender=Table)
 def auto_delete_image_on_delete(sender, instance, **kwargs):
     if instance.image:

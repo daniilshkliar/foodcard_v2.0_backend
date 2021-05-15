@@ -34,6 +34,9 @@ class PlaceSerializer(serializers.ModelSerializer):
     def validate_title(self, value):
         return value.capitalize()
 
+    def validate_city(self, value):
+        return value.capitalize()
+        
     def validate_opening_hours(self, value):
         if len(value) != 7:
             raise serializers.ValidationError('Opening hours must be quoted for all weekdays')
@@ -186,12 +189,6 @@ class PlaceImageSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class MenuImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MenuImage
-        fields = '__all__'
-
-
 class FavoritesSerializer(serializers.ModelSerializer):
     place = serializers.SerializerMethodField()
 
@@ -231,6 +228,50 @@ class TableSerializer(serializers.ModelSerializer):
         instance.floor = validated_data.get('floor', instance.floor)
         instance.deposit = validated_data.get('deposit', instance.deposit)
         instance.is_vip = validated_data.get('is_vip', instance.is_vip)
+
+        image = validated_data.get('image')
+        delete_image = self.initial_data.get('delete_image')
+        if image and not delete_image:
+            if instance.image:
+                if os.path.isfile(instance.image.path):
+                    os.remove(instance.image.path)
+                    
+            instance.image = image
+        elif not image and delete_image:
+            if instance.image:
+                if os.path.isfile(instance.image.path):
+                    os.remove(instance.image.path)
+                
+            instance.image.delete()
+
+        instance.save()
+        return instance
+
+
+class MenuSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Menu
+        fields = '__all__'
+
+    def validate(self, data):
+        if price := data.get('price'):
+            data['price'] = Money(price, 'BYN')
+        
+        if image := data.get('image'):
+            data['image'] = get_thumbnail(image, (500, 300))
+
+        return data
+
+    def update(self, instance, validated_data):
+        instance.category = validated_data.get('category', instance.category)
+        instance.title = validated_data.get('title', instance.title)
+        instance.price = validated_data.get('price', instance.price)
+        instance.composition = validated_data.get('composition', instance.composition)
+        instance.weight = validated_data.get('weight', instance.weight)
+        instance.proteins = validated_data.get('proteins', instance.proteins)
+        instance.fats = validated_data.get('fats', instance.fats)
+        instance.carbohydrates = validated_data.get('carbohydrates', instance.carbohydrates)
+        instance.calories = validated_data.get('calories', instance.calories)
 
         image = validated_data.get('image')
         delete_image = self.initial_data.get('delete_image')

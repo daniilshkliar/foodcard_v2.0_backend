@@ -22,4 +22,8 @@ urlpatterns = [
     path('tables/create/', views.TableViewSet.as_view({'post': 'create'})),
     path('tables/update/<int:pk>/<int:table_pk>/', views.TableViewSet.as_view({'post': 'update'})),
     path('tables/delete/<int:pk>/<int:table_pk>/', views.TableViewSet.as_view({'post': 'destroy'})),
+    path('dishes/<int:pk>/<str:category>/', views.MenuViewSet.as_view({'get': 'list'})),
+    path('dishes/create/', views.MenuViewSet.as_view({'post': 'create'})),
+    path('dishes/update/<int:pk>/<int:dish_pk>/', views.MenuViewSet.as_view({'post': 'update'})),
+    path('dishes/delete/<int:pk>/<int:dish_pk>/', views.MenuViewSet.as_view({'post': 'destroy'})),
 ]
