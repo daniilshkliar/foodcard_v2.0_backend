@@ -42,7 +42,7 @@ class PlaceViewSet(viewsets.ModelViewSet):
             places = self.queryset.filter(
                 (Q(main_category__in=categories) | Q(additional_categories__in=categories)) &
                 (Q(main_cuisine__in=cuisines) | Q(additional_cuisines__in=cuisines)) &  
-                (Q(additional_services__in=services) | Q(additional_cuisines__isnull=True)),
+                (Q(additional_services__in=services) | Q(additional_services__isnull=True)),
                 country__name__iexact=country,
                 city__iexact=city,
                 is_active=True,
@@ -57,7 +57,7 @@ class PlaceViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def get_list_for_panel(self, request):
-        places = get_objects_for_user(request.user, 'core.view_place').order_by('title')
+        places = get_objects_for_user(request.user, 'core.view_place', self.queryset.filter(is_active=True)).order_by('title')
 
         page = self.paginate_queryset(places)
         if page is not None:
@@ -177,7 +177,7 @@ class FavoritesViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def list(self, request):
-        places = self.queryset.filter(user=request.user)
+        places = self.queryset.filter(user=request.user, place__is_active=True)
         serializer = self.get_serializer(places, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

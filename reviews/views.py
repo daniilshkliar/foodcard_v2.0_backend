@@ -40,7 +40,7 @@ def update_general_review(generalreview, place_id):
             ROUND((food::float/amount)::numeric, 1) as food,
             ROUND((service::float/amount)::numeric, 1) as service, 
             ROUND((ambience::float/amount)::numeric, 1) as ambience,
-            array_agg(array[star_5,star_4,star_3,star_3,star_1]) as distribution,
+            array_agg(array[star_1,star_2,star_3,star_4,star_5]) as distribution,
             CASE
                 WHEN small = moderate AND moderate = loud THEN 'M'
                 WHEN small = loud THEN 'M'
