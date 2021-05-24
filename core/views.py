@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
-from guardian.shortcuts import get_objects_for_user
+from guardian.shortcuts import get_objects_for_user, assign_perm, remove_perm
 
 from .models import *
 from .serializers import *
@@ -84,11 +84,15 @@ class PlaceViewSet(viewsets.ModelViewSet):
             return Response({'message': 'This place does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
     def create(self, request):
-        # only after purchase the product, became a manager and then can create the place
-        if request.user.has_perm('core.add_place'):
+        # manager in staff too
+        if request.user.groups.filter(name='Manager').exists():
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
+
+            place = self.queryset.get(id=serializer.data.get('id'))
+            assign_perm('manage_place', request.user, place)
+            assign_perm('view_place', request.user, place)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response({'message': "You don't have permission to create a place"}, status=status.HTTP_403_FORBIDDEN)

@@ -104,6 +104,10 @@ class PlaceSerializer(serializers.ModelSerializer):
         latitude, longitude = validated_data.get('coordinates')
         place.coordinates = [latitude, longitude]
         place.timezone = TimezoneFinder().timezone_at(lat=latitude, lng=longitude)
+        place.is_active = True
+        latitude, longitude = validated_data.get('coordinates')
+        place.main_category = validated_data.get('main_category')
+        place.main_cuisine = validated_data.get('main_cuisine')
 
         place.save()
 
